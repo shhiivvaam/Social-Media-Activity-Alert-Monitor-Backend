@@ -1,0 +1,26 @@
+{
+  "monitoredAccounts": [
+    {
+      "id": 1765264894420,
+      "username": "shhiivvaam",
+      "platform": "INSTAGRAM",
+      "createdAt": "2025-12-09T07:21:34.420Z",
+      "lastPostId": "1765305328624"
+    },
+    {
+      "id": 1765264898703,
+      "username": "newsbite",
+      "platform": "INSTAGRAM",
+      "createdAt": "2025-12-09T07:21:38.703Z",
+      "lastPostId": "1765265347549"
+    },
+    {
+      "id": 1765265191856,
+      "username": "ShivamK44896350",
+      "platform": "TWITTER",
+      "createdAt": "2025-12-09T07:26:31.856Z",
+      "lastPostId": "1765266091685"
+    }
+  ],
+  "notificationGroups": []
+}

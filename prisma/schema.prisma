@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Platform {
+  INSTAGRAM
+  TWITTER
+}
+
+model MonitoredAccount {
+  id          Int      @id @default(autoincrement())
+  username    String
+  platform    Platform
+  lastPostId  String?  // ID of the last processed post/tweet
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([username, platform])
+}
+
+model NotificationGroup {
+  id          Int      @id @default(autoincrement())
+  name        String
+  platform    Platform // Monitors specific platform
+  groupId     String   // WhatsApp Group ID
+  createdAt   DateTime @default(now())
+}
