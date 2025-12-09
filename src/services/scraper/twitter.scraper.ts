@@ -1,5 +1,7 @@
 
 import { ScraperUtils } from './scraper.utils';
+import * as fs from 'fs';
+import * as path from 'path';
 
 export interface ScrapedPost {
     id: string;
@@ -28,20 +30,34 @@ export class TwitterScraper {
             const url = `${instance}/${username}`;
             try {
                 console.log(`Scraping Twitter via ${url}...`);
-                await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+                await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
 
-                // Check if profile exists (Nitter specific error panel)
-                const notFound = await page.$('.error-panel');
-                if (notFound) {
-                    console.warn(`Twitter profile ${username} not found on ${instance}`);
-                    // If definitely not found, don't retry other instances? 
-                    // Actually, sometimes instances block and show error. safe to continue.
+                // Check for generic error
+                const errorPanel = await page.$('.error-panel');
+                if (errorPanel) {
+                    console.warn(`Twitter profile ${username} not found/error on ${instance}`);
+                    continue;
+                }
+
+                // Wait for timeline (handles "Anubis" protection loading screen)
+                try {
+                    await page.waitForSelector('.timeline .timeline-item', { timeout: 15000 });
+                } catch (e) {
+                    console.warn(`Timeout waiting for timeline on ${instance}. Dumping HTML...`);
+                    const html = await page.content();
+                    fs.writeFileSync(path.join(process.cwd(), 'scraper_debug_twitter.html'), html);
                     continue;
                 }
 
                 const firstTweetHandle = await page.$('.timeline .timeline-item:not(.show-more)');
                 if (!firstTweetHandle) {
-                    console.warn(`No tweets found for ${username} on ${instance}`);
+                    // Try to see if it's because of a "Sensitive Content" warning or "Protected"
+                    const content = await page.content();
+                    if (content.includes('Restricted')) {
+                        console.warn(`Account ${username} is restricted/sensitive on ${instance}`);
+                    } else {
+                        console.warn(`No tweets found for ${username} on ${instance}`);
+                    }
                     continue; // Try next instance
                 }
 
